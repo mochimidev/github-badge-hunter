@@ -1,0 +1,20 @@
+{
+  "name": "github-badge-hunter",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Rastreador visual de logros oficiales de GitHub (Starstruck y Pull Shark)",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve . -l 3000",
+    "dev": "npx serve . -l 3000"
+  },
+  "keywords": [
+    "github",
+    "achievements",
+    "badges",
+    "starstruck",
+    "pull-shark"
+  ],
+  "author": "",
+  "license": "MIT"
+}

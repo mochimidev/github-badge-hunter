@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Badge Hunter | Rastreador de Logros</title>
+  <meta name="description" content="Rastreador visual para analizar perfiles de GitHub y monitorear el progreso hacia logros como Starstruck y Pull Shark.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦈</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-wrapper">
+        <svg class="gh-icon" height="32" viewBox="0 0 16 16" width="32" fill="currentColor">
+          <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+        </svg>
+        <div class="header-titles">
+          <h1>GitHub Badge Hunter</h1>
+          <span class="tagline">Rastreador visual de logros y recompensas de GitHub</span>
+        </div>
+      </div>
+
+      <!-- Token toggle button (optional for higher rate-limit) -->
+      <button id="btn-toggle-token" class="btn-ghost" title="Configurar Token personal para mayor límite de peticiones">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+        <span class="btn-text">API Token (Opcional)</span>
+      </button>
+    </header>
+
+    <!-- Optional GitHub Token Box -->
+    <div id="token-box" class="token-box hidden">
+      <div class="token-inner">
+        <div>
+          <h4>Límite de API GitHub</h4>
+          <p>Sin token tienes 60 req/hora. Si deseas ampliar a 5,000 req/hora, ingresa un GitHub Personal Access Token (PAT). Se guarda únicamente en tu navegador (localStorage).</p>
+        </div>
+        <div class="token-input-row">
+          <input type="password" id="input-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+          <button id="btn-save-token" class="btn-secondary">Guardar</button>
+          <button id="btn-clear-token" class="btn-outline">Borrar</button>
+        </div>
+        <div id="token-status" class="token-status"></div>
+      </div>
+    </div>
+
+    <!-- Search Section -->
+    <section class="search-section">
+      <form id="search-form" class="search-form" autocomplete="off">
+        <div class="search-input-wrapper">
+          <span class="input-prefix">github.com/</span>
+          <input 
+            type="text" 
+            id="username-input" 
+            placeholder="Introduce un usuario (ej. octocat, torvalds, gaearon)" 
+            required 
+            spellcheck="false"
+          >
+        </div>
+        <button type="submit" id="btn-search" class="btn-primary">
+          <span class="btn-label">Buscar</span>
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </button>
+      </form>
+
+      <!-- Quick user presets -->
+      <div class="quick-tags">
+        <span class="quick-label">Prueba rápida:</span>
+        <button type="button" class="quick-tag" data-user="octocat">octocat</button>
+        <button type="button" class="quick-tag" data-user="defunkt">defunkt</button>
+        <button type="button" class="quick-tag" data-user="yyx990803">yyx990803 (Evan You)</button>
+        <button type="button" class="quick-tag" data-user="sindresorhus">sindresorhus</button>
+      </div>
+    </section>
+
+    <!-- Error / Alert Banner -->
+    <div id="alert-banner" class="alert-banner hidden" role="alert">
+      <div class="alert-icon">⚠️</div>
+      <div class="alert-body">
+        <h4 id="alert-title">Ha ocurrido un error</h4>
+        <p id="alert-message">Mensaje de error detallado.</p>
+      </div>
+      <button id="alert-close" class="alert-close" aria-label="Cerrar">&times;</button>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading-spinner" class="loading-state hidden">
+      <div class="spinner"></div>
+      <p id="loading-text">Consultando la API de GitHub...</p>
+    </div>
+
+    <!-- Results Container -->
+    <main id="results-container" class="results-container hidden">
+      <!-- User Profile Summary Card -->
+      <section id="user-profile-card" class="profile-card">
+        <!-- Rendered dynamically by ui.js -->
+      </section>
+
+      <!-- Achievements Header -->
+      <div class="badges-header">
+        <div class="badges-title-group">
+          <h2>Logros Oficiales de GitHub</h2>
+          <p>Monitoreo de progreso hacia las insignias oficiales de tu perfil.</p>
+        </div>
+        <div id="rate-limit-badge" class="rate-badge">
+          Peticiones API restantes: <strong id="rate-remaining">--</strong>/<span id="rate-limit">60</span>
+        </div>
+      </div>
+
+      <!-- Badges Grid -->
+      <div class="badges-grid">
+        <!-- Starstruck Card -->
+        <article class="badge-card" id="card-starstruck">
+          <div class="badge-card-header">
+            <div class="badge-emblem emblem-starstruck">
+              <span class="badge-emoji">⭐</span>
+            </div>
+            <div class="badge-info">
+              <div class="badge-title-row">
+                <h3>Starstruck</h3>
+                <span id="starstruck-status-pill" class="status-pill locked">Bloqueado</span>
+              </div>
+              <p class="badge-description">Obtén 16 estrellas en los repositorios públicos de tu cuenta.</p>
+            </div>
+          </div>
+
+          <div class="badge-progress-section">
+            <div class="progress-labels">
+              <span class="progress-title">Progreso hacia el logro</span>
+              <span class="progress-percent" id="starstruck-percent">0%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill fill-starstruck" id="starstruck-bar" style="width: 0%;"></div>
+            </div>
+            <div class="progress-details">
+              <span>Estrellas actuales: <strong id="starstruck-current">0</strong></span>
+              <span>Meta requerida: <strong id="starstruck-target">16</strong></span>
+            </div>
+          </div>
+
+          <div class="badge-footer" id="starstruck-footer">
+            <span class="status-tip" id="starstruck-tip">Faltan 16 estrellas para desbloquear.</span>
+          </div>
+        </article>
+
+        <!-- Pull Shark Card -->
+        <article class="badge-card" id="card-pullshark">
+          <div class="badge-card-header">
+            <div class="badge-emblem emblem-pullshark">
+              <span class="badge-emoji">🦈</span>
+            </div>
+            <div class="badge-info">
+              <div class="badge-title-row">
+                <h3>Pull Shark</h3>
+                <span id="pullshark-status-pill" class="status-pill locked">Bloqueado</span>
+              </div>
+              <p class="badge-description">Consigue al menos 2 Pull Requests fusionados (merged) en repositorios.</p>
+            </div>
+          </div>
+
+          <div class="badge-progress-section">
+            <div class="progress-labels">
+              <span class="progress-title">Progreso hacia el logro</span>
+              <span class="progress-percent" id="pullshark-percent">0%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill fill-pullshark" id="pullshark-bar" style="width: 0%;"></div>
+            </div>
+            <div class="progress-details">
+              <span>PRs fusionados: <strong id="pullshark-current">0</strong></span>
+              <span>Meta requerida: <strong id="pullshark-target">2</strong></span>
+            </div>
+          </div>
+
+          <div class="badge-footer" id="pullshark-footer">
+            <span class="status-tip" id="pullshark-tip">Faltan 2 PRs fusionados para desbloquear.</span>
+          </div>
+        </article>
+      </div>
+
+      <!-- Repositories breakdown / Stats details -->
+      <section class="details-section">
+        <div class="details-card">
+          <h3>Detalle de Repositorios con Estrellas</h3>
+          <div id="top-repos-list" class="repos-list">
+            <!-- Rendered by ui.js -->
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Construido para desarrolladores de GitHub. Los logros oficiales son marcas registradas de GitHub, Inc.</p>
+      <p class="footer-sub">Optimizado para despliegue estático en Vercel, Firebase Hosting o GitHub Pages.</p>
+    </footer>
+  </div>
+
+  <!-- Application Modules -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
